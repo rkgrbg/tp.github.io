@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>a067.py</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #000000;
+            margin: 0;
+            padding: 20px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        pre[class*="language-"], code[class*="language-"] {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: auto;
+            white-space: pre;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;">
+
+    <pre><code class="language-python">
+from itertools import accumulate as lIlIl
+from math import isqrt as IlIIl
+import sys as lIIlI
+lIIl1=lambda *x:range(*x)
+IIlIl=lambda x:reversed(tuple(x))
+lII1l=lambda x:tuple(x)
+IIllI=lambda *x:map(*x)
+llIIl=lambda:getattr(__import__("builtins"),"print")
+l1IlI=lambda:lIIlI.stdin.readline()
+llIIl()((lambda lIlI,IlIl:(lambda llIl,IIlI:(lambda l1Il=[10**18]:(lambda lllI:
+(lllI(lllI,IlIl,lIlI,0,IlIIl(lIlI)+1,lIlI+1),l1Il[0]*(l1Il[0]&lt;10**18))[1])(
+lambda lllI,lI1I,Il1I,l1lI,I1II,IlI1I:
+((lI1I&lt;1)and(Il1I&lt;1)and l1Il.__setitem__(0,l1lI+(l1Il[0]-l1lI)*(l1Il[0]&lt;l1lI)))or(
+(lI1I&gt;0)and(Il1I&gt;=llIl[lI1I])and(l1lI&lt;l1Il[0]-IIlI[lI1I])and((Il1I&lt;&lt;1)&lt;(l1Il[0]-l1lI)*I1II)
+and[0 for lIl1_ in IIlIl(lIIl1(lI1I,min(I1II-1,IlIIl(Il1I-llIl[lI1I-1]))+1))
+for IlI1_ in IIlIl(lIIl1(lI1I,min(IlI1I-1,(Il1I-llIl[lI1I-1])//(lIl1_*lIl1_))+1))
+if(lambda ll1I:(ll1I&lt;l1Il[0])and(lllI(lllI,lI1I-1,Il1I-lIl1_*lIl1_*IlI1_,ll1I,lIl1_,IlI1_)
+or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
+[0,*lIlIl(IIllI(lambda l:l*l*l,lIIl1(1,IlIl+1)))],[0,*lIlIl(IIllI(lambda I:(I*I)&lt;&lt;1,lIIl1(1,IlIl+1)))]
+))(*lII1l(IIllI(int,IIllI(lambda _:l1IlI(),iter('..'))))))
+    </code></pre>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>
