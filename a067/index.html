@@ -2,163 +2,205 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A067.PY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYS://A067.PY_DEC_v1.3</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
     <style>
         :root {
-            --bg-color: #050505; /* 更深的純粹黑 */
-            --main-cyan: #0ff;
-            --main-pink: #f0f;
-            --text-color: #a78bfa;
+            --bg-base: #030005; /* 極深紫黑背景 */
+            --bg-accent: #0e0214;
+            --neon-pink: #FF00CC; /* 眩目粉 */
+            --neon-purple: #BC13FE; /* 霓虹紫 */
+            --neon-blue: #1345FE;
+            --cyan: #00FFFF; /* 函式青 */
+            --text-code: #D9C3E1;
+            --glitch-flicker: 0.1; /* 雜訊閃爍強度 */
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-base);
+            color: var(--text-code);
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            width: 100vw;
+            height: 100vh;
             font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
+            overflow: hidden; /* 防止滾動，鎖定視窗 */
             
-            /* 安全防護：禁止選取 */
+            /* 安全防護：禁止選取、長按、反白 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            -webkit-touch-callout: none;
         }
 
-        /* --- 背景掃描線與雜訊 --- */
-        body::before {
-            content: "";
+        /* =========================================
+           1. 多層次 Cyberpunk 背景與深度
+           ========================================= */
+        #cyber-frame {
             position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 掃描線效果 (Scanlines) */
+        #scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
             background-size: 100% 4px;
-            z-index: -1;
+            z-index: 10;
             pointer-events: none;
-            opacity: 0.3;
+            opacity: 0.6;
         }
 
-        /* --- 兩側邊緣動態掃描線 (HUD 效果) --- */
-        .hud-line {
+        /* =========================================
+           2. 入場解碼動畫 (Scramble)
+           ========================================= */
+        #loader-container {
             position: fixed;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: rgba(0, 255, 255, 0.1);
-            z-index: 0;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--neon-pink);
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(255, 0, 204, 0.9);
+            white-space: nowrap;
+            z-index: 50;
         }
-        .hud-line.left { left: 20px; }
-        .hud-line.right { right: 20px; }
-        
-        .hud-line::after {
+
+        /* =========================================
+           3. 主畫面與客製化 Prism 介面
+           ========================================= */
+        #main-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%; height: 100%;
+            padding: 40px 15px; /* 適合手機 */
+            box-sizing: border-box;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.5s ease-out;
+            z-index: 20;
+        }
+
+        #main-content.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 左右無框 HUD (監控數據) */
+        .cyber-hud {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--neon-purple);
+            padding: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(188, 19, 254, 0.4);
+            position: relative;
+        }
+        .cyber-hud::before {
             content: "";
             position: absolute;
-            top: -50px;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: linear-gradient(to bottom, transparent, var(--main-cyan));
-            animation: scanline-vertical 3s linear infinite;
-        }
-        .hud-line.right::after {
-            background: linear-gradient(to bottom, transparent, var(--main-pink));
-            animation-duration: 4s;
-            animation-delay: 1s;
+            top: 0; left: -1px; width: 3px; height: 100%;
+            background: linear-gradient(transparent, var(--neon-pink));
         }
 
-        @keyframes scanline-vertical {
-            0% { top: -50px; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100vh; opacity: 0; }
+        .cyber-hud.bottom {
+            border-bottom: none;
+            border-top: 2px solid rgba(188, 19, 254, 0.4);
+            margin-bottom: 0;
+            margin-top: 20px;
+            color: var(--cyan);
+        }
+        .cyber-hud.bottom::before {
+            background: linear-gradient(var(--cyan), transparent);
         }
 
-        /* --- 載入中解碼動畫 (Scramble) --- */
-        #loader {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--main-cyan);
-            font-size: 1.5rem;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px var(--main-cyan);
-            white-space: nowrap;
-            z-index: 10;
-        }
+        /* 數據欄位 */
+        .hud-data-column { display: flex; flex-direction: column; }
+        .data-label { color: var(--text-code); opacity: 0.6; margin-bottom: 3px;}
+        .data-value { color: var(--neon-blue); text-shadow: 0 0 5px rgba(19, 69, 254, 0.6); }
 
-        /* --- 程式碼區塊樣式 --- */
-        #code-container {
-            width: 100%;
-            max-width: 1000px;
+        /* CPU 使用率圖表 */
+        .cpu-chart { display: flex; align-items: flex-end; gap: 2px; height: 15px; width: 60px; }
+        .chart-bar { width: 4px; height: 5px; background: rgba(0, 255, 255, 0.3); transition: height 0.3s ease; }
+        .chart-bar.high { background: var(--cyan); }
+
+        /* 程式碼容器 (無框) */
+        #code-wrapper {
+            flex: 1;
+            overflow-y: auto; /* 允許垂直滾動 */
+            overflow-x: auto; /* 允許水平滾動 */
             position: relative;
-            z-index: 1;
-            
-            /* 進場動畫：從模糊與透明中浮現 */
-            opacity: 0;
-            filter: blur(10px);
-            transform: scale(0.98);
-            transition: opacity 0.8s ease-out, filter 0.8s ease-out, transform 0.8s ease-out;
+            scrollbar-width: none;
+        }
+        #code-wrapper::-webkit-scrollbar { display: none; }
+
+        /* 防截圖網底 */
+        #code-wrapper::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(45deg, rgba(0,0,0,0.06) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.06) 50%, rgba(0,0,0,0.06) 75%, transparent 75%, transparent);
+            background-size: 3px 3px; pointer-events: none; z-index: 5;
         }
 
-        #code-container.show {
-            opacity: 1;
-            filter: blur(0px);
-            transform: scale(1);
-        }
-
-        /* 覆寫 Prism 預設樣式，移除所有框線與背景 */
+        /* Prism.js 覆寫 (眩目高亮) */
         pre[class*="language-"] {
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
             margin: 0 !important;
             padding: 0 !important;
-            overflow-x: auto;
-            position: relative;
         }
 
         code[class*="language-"] {
             font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 16px;
+            font-size: 13px; /* 適合手機 */
             line-height: 1.6;
             text-shadow: none !important;
         }
 
-        /* 自定義代碼高亮顏色 */
-        .token.comment { color: #4b5563; font-style: italic; }
-        .token.keyword { color: var(--main-pink); text-shadow: 0 0 8px rgba(255,0,255,0.4); }
-        .token.string { color: #fcd34d; }
-        .token.function { color: var(--main-cyan); text-shadow: 0 0 8px rgba(0,255,255,0.4); }
+        /* 客製化代碼高亮顏色 */
+        .token.comment { color: #5c677a; font-style: italic; }
+        .token.keyword { color: var(--neon-pink); text-shadow: 0 0 8px rgba(255,0,204,0.4); }
+        .token.string { color: #f59e0b; }
+        .token.function { color: var(--cyan); text-shadow: 0 0 8px rgba(0,255,255,0.4); }
         .token.operator { color: #e5e7eb; }
         .token.number { color: #10b981; }
-        .token.punctuation { color: #6b7280; }
 
-        /* 防止選取的網底防護 */
-        pre[class*="language-"]::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05) 75%, transparent 75%, transparent);
-            background-size: 4px 4px;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;">
 
-    <div class="hud-line left"></div>
-    <div class="hud-line right"></div>
+    <div id="cyber-frame">
+        <div id="scanlines"></div>
+    </div>
 
-    <div id="loader"></div>
+    <div id="loader-container"></div>
 
-    <div id="code-container">
+    <div id="main-content">
+        <div class="cyber-hud">
+            <div class="hud-data-column">
+                <span class="data-label">SYS_MEM</span>
+                <span class="data-value" id="hud-hex">0x0000</span>
+            </div>
+            <div class="hud-data-column" style="text-align: right;">
+                <span class="data-label">AUTH_STATUS</span>
+                <span class="data-value" style="color: var(--cyan); text-shadow: 0 0 5px rgba(0,255,255,0.6);">OK</span>
+            </div>
+        </div>
+
+        <div id="code-wrapper">
 <pre><code class="language-python">
 from itertools import accumulate as lIlIl
 from math import isqrt as IlIIl
@@ -181,58 +223,110 @@ or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
 [0,*lIlIl(IIllI(lambda l:l*l*l,lIIl1(1,IlIl+1)))],[0,*lIlIl(IIllI(lambda I:(I*I)&lt;&lt;1,lIIl1(1,IlIl+1)))]
 ))(*lII1l(IIllI(int,IIllI(lambda _:l1IlI(),iter('..'))))))
 </code></pre>
+        </div>
+
+        <div class="cyber-hud bottom">
+            <div class="hud-data-column">
+                <span class="data-label">NET_UPLINK</span>
+                <span class="data-value" id="hud-net">0.0 TB/s</span>
+            </div>
+            <div class="hud-data-column" style="text-align: right; align-items: flex-end;">
+                <span class="data-label">CPU_LOAD</span>
+                <div class="cpu-chart" id="cpu-chart">
+                    <div class="chart-bar"></div><div class="chart-bar"></div><div class="chart-bar"></div>
+                    <div class="chart-bar"></div><div class="chart-bar"></div><div class="chart-bar"></div>
+                    <div class="chart-bar"></div><div class="chart-bar"></div><div class="chart-bar"></div>
+                    <div class="chart-bar"></div><div class="chart-bar"></div><div class="chart-bar"></div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     
     <script>
-        // --- 亂碼解碼 (Scramble) 進場動畫 ---
-        const targetText = "ACCESSING // A067.PY";
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*<>";
-        const loader = document.getElementById('loader');
-        const codeContainer = document.getElementById('code-container');
-        
-        let frame = 0;
-        // 調整這個數值可以改變動畫快慢，數字越小解碼越快
-        const revealSpeed = 3; 
+        // --- 解碼拉霸動畫 ---
+        const targetText = "TERMINAL://A067.PY";
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*><";
+        const loaderContainer = document.getElementById('loader-container');
+        const mainContent = document.getElementById('main-content');
+        let scrambleInterval;
+        let iteration = 0;
 
-        function scrambleEffect() {
-            let result = "";
-            // 計算目前已經解開多少個字元
-            let revealIndex = Math.floor(frame / revealSpeed);
+        function runScramble() {
+            scrambleInterval = setInterval(() => {
+                loaderContainer.innerText = targetText.split("").map((char, index) => {
+                    if (index < iteration) {
+                        return targetText[index]; // 顯示鎖定的字元
+                    }
+                    return chars[Math.floor(Math.random() * chars.length)]; // 顯示亂碼
+                }).join("");
 
-            for (let i = 0; i < targetText.length; i++) {
-                if (i < revealIndex) {
-                    // 顯示正確字元
-                    result += targetText[i];
-                } else {
-                    // 顯示隨機亂碼
-                    result += chars[Math.floor(Math.random() * chars.length)];
+                // 每次迭代增加，控制解碼速度
+                iteration += 1 / 3; 
+
+                // 解碼完成
+                if (iteration >= targetText.length) {
+                    clearInterval(scrambleInterval);
+                    finishBootAnimation();
                 }
-            }
-
-            loader.innerText = result;
-
-            if (revealIndex < targetText.length) {
-                frame++;
-                requestAnimationFrame(scrambleEffect);
-            } else {
-                // 解碼完成，短暫停留後切換畫面
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    codeContainer.classList.add('show');
-                    document.body.style.overflow = 'auto'; // 恢復頁面捲動
-                }, 400);
-            }
+            }, 30/1.5); // 稍微加快速度，增加劇烈感
         }
 
-        // 啟動動畫
+        function finishBootAnimation() {
+            // 解碼鎖定停留 1.2 秒
+            setTimeout(() => {
+                loaderContainer.style.transition = "opacity 0.6s ease";
+                loaderContainer.style.opacity = "0";
+                
+                setTimeout(() => {
+                    loaderContainer.style.display = "none";
+                    mainContent.classList.add('show');
+                    startMobileHUDUpdates(); // 啟動背景數字跳動
+                }, 600);
+            }, 1200);
+        }
+
+        // 啟動生命週期
         window.onload = () => {
-            requestAnimationFrame(scrambleEffect);
+            // 模擬系統自我檢測，先閃爍背景
+            setTimeout(() => {
+                document.getElementById('cyber-frame').style.opacity = '1';
+                setTimeout(runScramble, 1000); 
+            }, 200);
         };
 
-        // --- 安全防護 (禁止 F12 等快捷鍵) ---
+        // --- 行動版 HUD 動態數據跳動 ---
+        function startMobileHUDUpdates() {
+            const hexEl = document.getElementById('hud-hex');
+            const netEl = document.getElementById('hud-net');
+            const cpuChart = document.getElementById('cpu-chart');
+
+            // 閃爍 HEX 碼
+            setInterval(() => {
+                const hex = Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, '0');
+                hexEl.innerText = `0x${hex}`;
+            }, 150);
+
+            // 跳動網速
+            setInterval(() => {
+                const speed = (Math.random() * 60 + 30).toFixed(2);
+                netEl.innerText = `${speed} TB/s`;
+            }, 400);
+
+            // 更新 CPU 圖表
+            const bars = cpuChart.querySelectorAll('.chart-bar');
+            setInterval(() => {
+                bars.forEach(bar => {
+                    const height = Math.random() * 10 + 3; // 隨機高度
+                    bar.style.height = `${height}px`;
+                    if (height > 9) { bar.classList.add('high'); } else { bar.classList.remove('high'); }
+                });
+            }, 300);
+        }
+
+        // --- 安全防護：禁止快捷鍵與長按彈窗 ---
         document.onkeydown = function(e) {
             if (e.keyCode == 123) { return false; } // F12
             if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; }
@@ -240,6 +334,10 @@ or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
             if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; }
             if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // View Source
         };
+        
+        window.addEventListener('contextmenu', function (e) { 
+            e.preventDefault(); 
+        }, false);
     </script>
 </body>
 </html>
