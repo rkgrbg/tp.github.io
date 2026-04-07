@@ -3,34 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>a067.py</title>
+    <title>A067.PY</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
     <style>
+        :root {
+            --bg-color: #050505; /* 更深的純粹黑 */
+            --main-cyan: #0ff;
+            --main-pink: #f0f;
+            --text-color: #a78bfa;
+        }
+
         body {
-            background-color: #000000;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            
+            /* 安全防護：禁止選取 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
 
-        pre[class*="language-"], code[class*="language-"] {
+        /* --- 背景掃描線與雜訊 --- */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* --- 兩側邊緣動態掃描線 (HUD 效果) --- */
+        .hud-line {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(0, 255, 255, 0.1);
+            z-index: 0;
+        }
+        .hud-line.left { left: 20px; }
+        .hud-line.right { right: 20px; }
+        
+        .hud-line::after {
+            content: "";
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to bottom, transparent, var(--main-cyan));
+            animation: scanline-vertical 3s linear infinite;
+        }
+        .hud-line.right::after {
+            background: linear-gradient(to bottom, transparent, var(--main-pink));
+            animation-duration: 4s;
+            animation-delay: 1s;
+        }
+
+        @keyframes scanline-vertical {
+            0% { top: -50px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        /* --- 載入中解碼動畫 (Scramble) --- */
+        #loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--main-cyan);
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px var(--main-cyan);
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        /* --- 程式碼區塊樣式 --- */
+        #code-container {
+            width: 100%;
+            max-width: 1000px;
+            position: relative;
+            z-index: 1;
+            
+            /* 進場動畫：從模糊與透明中浮現 */
+            opacity: 0;
+            filter: blur(10px);
+            transform: scale(0.98);
+            transition: opacity 0.8s ease-out, filter 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        #code-container.show {
+            opacity: 1;
+            filter: blur(0px);
+            transform: scale(1);
+        }
+
+        /* 覆寫 Prism 預設樣式，移除所有框線與背景 */
+        pre[class*="language-"] {
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow-x: auto;
-            white-space: pre;
+            position: relative;
+        }
+
+        code[class*="language-"] {
+            font-family: 'Consolas', 'Monaco', monospace;
             font-size: 16px;
+            line-height: 1.6;
+            text-shadow: none !important;
+        }
+
+        /* 自定義代碼高亮顏色 */
+        .token.comment { color: #4b5563; font-style: italic; }
+        .token.keyword { color: var(--main-pink); text-shadow: 0 0 8px rgba(255,0,255,0.4); }
+        .token.string { color: #fcd34d; }
+        .token.function { color: var(--main-cyan); text-shadow: 0 0 8px rgba(0,255,255,0.4); }
+        .token.operator { color: #e5e7eb; }
+        .token.number { color: #10b981; }
+        .token.punctuation { color: #6b7280; }
+
+        /* 防止選取的網底防護 */
+        pre[class*="language-"]::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05) 75%, transparent 75%, transparent);
+            background-size: 4px 4px;
+            pointer-events: none;
         }
     </style>
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;">
 
-    <pre><code class="language-python">
+    <div class="hud-line left"></div>
+    <div class="hud-line right"></div>
+
+    <div id="loader"></div>
+
+    <div id="code-container">
+<pre><code class="language-python">
 from itertools import accumulate as lIlIl
 from math import isqrt as IlIIl
 import sys as lIIlI
@@ -51,9 +180,66 @@ if(lambda ll1I:(ll1I&lt;l1Il[0])and(lllI(lllI,lI1I-1,Il1I-lIl1_*lIl1_*IlI1_,ll1I
 or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
 [0,*lIlIl(IIllI(lambda l:l*l*l,lIIl1(1,IlIl+1)))],[0,*lIlIl(IIllI(lambda I:(I*I)&lt;&lt;1,lIIl1(1,IlIl+1)))]
 ))(*lII1l(IIllI(int,IIllI(lambda _:l1IlI(),iter('..'))))))
-    </code></pre>
+</code></pre>
+    </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    
+    <script>
+        // --- 亂碼解碼 (Scramble) 進場動畫 ---
+        const targetText = "ACCESSING // A067.PY";
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*<>";
+        const loader = document.getElementById('loader');
+        const codeContainer = document.getElementById('code-container');
+        
+        let frame = 0;
+        // 調整這個數值可以改變動畫快慢，數字越小解碼越快
+        const revealSpeed = 3; 
+
+        function scrambleEffect() {
+            let result = "";
+            // 計算目前已經解開多少個字元
+            let revealIndex = Math.floor(frame / revealSpeed);
+
+            for (let i = 0; i < targetText.length; i++) {
+                if (i < revealIndex) {
+                    // 顯示正確字元
+                    result += targetText[i];
+                } else {
+                    // 顯示隨機亂碼
+                    result += chars[Math.floor(Math.random() * chars.length)];
+                }
+            }
+
+            loader.innerText = result;
+
+            if (revealIndex < targetText.length) {
+                frame++;
+                requestAnimationFrame(scrambleEffect);
+            } else {
+                // 解碼完成，短暫停留後切換畫面
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    codeContainer.classList.add('show');
+                    document.body.style.overflow = 'auto'; // 恢復頁面捲動
+                }, 400);
+            }
+        }
+
+        // 啟動動畫
+        window.onload = () => {
+            requestAnimationFrame(scrambleEffect);
+        };
+
+        // --- 安全防護 (禁止 F12 等快捷鍵) ---
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123) { return false; } // F12
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // View Source
+        };
+    </script>
 </body>
 </html>
