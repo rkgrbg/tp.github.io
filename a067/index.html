@@ -7,14 +7,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
     <style>
         :root {
-            --bg-base: #030005; /* 極深紫黑背景 */
+            --bg-base: #030005;
             --bg-accent: #0e0214;
-            --neon-pink: #FF00CC; /* 眩目粉 */
-            --neon-purple: #BC13FE; /* 霓虹紫 */
+            --neon-pink: #FF00CC;
+            --neon-purple: #BC13FE;
             --neon-blue: #1345FE;
-            --cyan: #00FFFF; /* 函式青 */
+            --cyan: #00FFFF;
             --text-code: #D9C3E1;
-            --glitch-flicker: 0.1; /* 雜訊閃爍強度 */
+            --glitch-flicker: 0.1;
         }
 
         body {
@@ -28,9 +28,8 @@
             width: 100vw;
             height: 100vh;
             font-family: 'Courier New', Courier, monospace;
-            overflow: hidden; /* 防止滾動，鎖定視窗 */
+            overflow: hidden;
             
-            /* 安全防護：禁止選取、長按、反白 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -38,9 +37,7 @@
             -webkit-touch-callout: none;
         }
 
-        /* =========================================
-           1. 多層次 Cyberpunk 背景與深度
-           ========================================= */
+
         #cyber-frame {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -51,7 +48,7 @@
             overflow: hidden;
         }
 
-        /* 掃描線效果 (Scanlines) */
+
         #scanlines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -62,9 +59,7 @@
             opacity: 0.6;
         }
 
-        /* =========================================
-           2. 入場解碼動畫 (Scramble)
-           ========================================= */
+
         #loader-container {
             position: fixed;
             top: 50%; left: 50%;
@@ -78,14 +73,11 @@
             z-index: 50;
         }
 
-        /* =========================================
-           3. 主畫面與客製化 Prism 介面
-           ========================================= */
         #main-content {
             display: flex;
             flex-direction: column;
             width: 100%; height: 100%;
-            padding: 40px 15px; /* 適合手機 */
+            padding: 40px 15px;
             box-sizing: border-box;
             opacity: 0;
             visibility: hidden;
@@ -98,7 +90,6 @@
             visibility: visible;
         }
 
-        /* 左右無框 HUD (監控數據) */
         .cyber-hud {
             display: flex;
             justify-content: space-between;
@@ -127,34 +118,33 @@
             background: linear-gradient(var(--cyan), transparent);
         }
 
-        /* 數據欄位 */
+
         .hud-data-column { display: flex; flex-direction: column; }
         .data-label { color: var(--text-code); opacity: 0.6; margin-bottom: 3px;}
         .data-value { color: var(--neon-blue); text-shadow: 0 0 5px rgba(19, 69, 254, 0.6); }
 
-        /* CPU 使用率圖表 */
+
         .cpu-chart { display: flex; align-items: flex-end; gap: 2px; height: 15px; width: 60px; }
         .chart-bar { width: 4px; height: 5px; background: rgba(0, 255, 255, 0.3); transition: height 0.3s ease; }
         .chart-bar.high { background: var(--cyan); }
 
-        /* 程式碼容器 (無框) */
+
         #code-wrapper {
             flex: 1;
-            overflow-y: auto; /* 允許垂直滾動 */
-            overflow-x: auto; /* 允許水平滾動 */
+            overflow-y: auto;
+            overflow-x: auto;
             position: relative;
             scrollbar-width: none;
         }
         #code-wrapper::-webkit-scrollbar { display: none; }
 
-        /* 防截圖網底 */
+
         #code-wrapper::after {
             content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: linear-gradient(45deg, rgba(0,0,0,0.06) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.06) 50%, rgba(0,0,0,0.06) 75%, transparent 75%, transparent);
             background-size: 3px 3px; pointer-events: none; z-index: 5;
         }
 
-        /* Prism.js 覆寫 (眩目高亮) */
         pre[class*="language-"] {
             background: transparent !important;
             border: none !important;
@@ -165,12 +155,12 @@
 
         code[class*="language-"] {
             font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 13px; /* 適合手機 */
+            font-size: 13px;
             line-height: 1.6;
             text-shadow: none !important;
         }
 
-        /* 客製化代碼高亮顏色 */
+
         .token.comment { color: #5c677a; font-style: italic; }
         .token.keyword { color: var(--neon-pink); text-shadow: 0 0 8px rgba(255,0,204,0.4); }
         .token.string { color: #f59e0b; }
@@ -246,7 +236,12 @@ or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     
     <script>
+<<<<<<< Updated upstream
         const targetText = "NOI 1999 CIL";
+=======
+
+        const targetText = "TERMINAL://A067.PY";
+>>>>>>> Stashed changes
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*><";
         const loaderContainer = document.getElementById('loader-container');
         const mainContent = document.getElementById('main-content');
@@ -257,9 +252,9 @@ or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
             scrambleInterval = setInterval(() => {
                 loaderContainer.innerText = targetText.split("").map((char, index) => {
                     if (index < iteration) {
-                        return targetText[index]; // 顯示鎖定的字元
+                        return targetText[index];
                     }
-                    return chars[Math.floor(Math.random() * chars.length)]; // 顯示亂碼
+                    return chars[Math.floor(Math.random() * chars.length)];
                 }).join("");
 
                 // 每次迭代增加，控制解碼速度
