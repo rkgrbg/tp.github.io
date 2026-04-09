@@ -2,24 +2,27 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>a067.py | NOI1999</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
     <style>
         :root {
-            --bg-base: #030005;
-            --bg-accent: #0e0214;
-            --neon-pink: #FF00CC;
-            --neon-purple: #BC13FE;
-            --neon-blue: #1345FE;
-            --cyan: #00FFFF;
-            --text-code: #D9C3E1;
-            --glitch-flicker: 0.1;
+            --bg-gradient-1: #e0eafc;
+            --bg-gradient-2: #cfdef3;
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(255, 255, 255, 0.9);
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --accent-blue: #3498db;
+            --accent-green: #2ecc71;
+            --accent-purple: #9b59b6;
         }
 
         body {
-            background-color: var(--bg-base);
-            color: var(--text-code);
+            background: linear-gradient(45deg, var(--bg-gradient-1), var(--bg-gradient-2), #f5f7fa, var(--bg-gradient-1));
+            background-size: 400% 400%;
+            animation: bgShift 15s ease infinite;
+            color: var(--text-main);
             margin: 0;
             padding: 0;
             display: flex;
@@ -27,7 +30,8 @@
             align-items: center;
             width: 100vw;
             height: 100vh;
-            font-family: 'Courier New', Courier, monospace;
+            height: 100dvh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
             
             -webkit-user-select: none;
@@ -37,156 +41,162 @@
             -webkit-touch-callout: none;
         }
 
+        .particle { position: fixed; border-radius: 50%; opacity: 0.4; pointer-events: none; z-index: 1; }
+        .p1 { width: 250px; height: 250px; background: radial-gradient(circle, rgba(52,152,219,0.2) 0%, transparent 70%); top: -5%; left: -10%; animation: floatP1 12s infinite alternate, rotateP 20s linear infinite; }
+        .p2 { width: 350px; height: 350px; background: radial-gradient(circle, rgba(155,89,182,0.15) 0%, transparent 70%); bottom: -10%; right: -15%; animation: floatP2 18s infinite alternate-reverse; }
+        .p3 { width: 150px; height: 150px; background: radial-gradient(circle, rgba(46,204,113,0.2) 0%, transparent 70%); top: 40%; right: 10%; animation: floatP3 10s infinite alternate; }
 
         #cyber-frame {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none;
         }
-
 
         #scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
-            background-size: 100% 4px;
-            z-index: 10;
-            pointer-events: none;
-            opacity: 0.6;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(255,255,255,0) 50%, rgba(0,0,0,0.03) 50%);
+            background-size: 100% 6px; z-index: 10; pointer-events: none;
+            animation: scanScroll 8s linear infinite;
         }
 
-
         #loader-container {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--neon-pink);
-            font-size: 1.5rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px rgba(255, 0, 204, 0.9);
-            white-space: nowrap;
-            z-index: 50;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: var(--accent-blue); font-size: 1.5rem;
+            font-weight: 800; letter-spacing: 2px; font-family: 'Courier New', monospace;
+            z-index: 50; text-align: center; white-space: nowrap;
+            animation: scalePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, textGlowBreathe 2s infinite alternate;
         }
 
         #main-content {
-            display: flex;
-            flex-direction: column;
-            width: 100%; height: 100%;
-            padding: 40px 15px;
+            display: flex; flex-direction: column; 
+            width: 92%; max-width: 600px;
+            height: 90%;
+            padding: 15px;
             box-sizing: border-box;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 1.5s ease-out;
-            z-index: 20;
+            background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border); border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.6);
+            z-index: 20; opacity: 0; visibility: hidden; pointer-events: auto;
         }
 
         #main-content.show {
-            opacity: 1;
-            visibility: visible;
+            animation: fadeInBlur 1.2s ease-out forwards, shadowPulse 4s infinite alternate, cardFloat 6s ease-in-out infinite;
         }
 
         .cyber-hud {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: var(--neon-purple);
-            padding: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid rgba(188, 19, 254, 0.4);
-            position: relative;
+            display: flex; justify-content: space-between; font-size: 11px; font-family: 'Courier New', monospace; font-weight: bold;
+            color: var(--text-muted); padding: 8px 10px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.5); border-radius: 8px;
         }
-        .cyber-hud::before {
-            content: "";
-            position: absolute;
-            top: 0; left: -1px; width: 3px; height: 100%;
-            background: linear-gradient(transparent, var(--neon-pink));
+        #main-content.show .cyber-hud.top {
+            animation: slideDownEntry 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation-delay: 0.2s; opacity: 0; transform: translateY(-15px);
         }
 
-        .cyber-hud.bottom {
-            border-bottom: none;
-            border-top: 2px solid rgba(188, 19, 254, 0.4);
-            margin-bottom: 0;
-            margin-top: 20px;
-            color: var(--cyan);
+        .cyber-hud.bottom { margin-bottom: 0; margin-top: 15px; }
+        #main-content.show .cyber-hud.bottom {
+            animation: slideUpEntry 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation-delay: 0.4s; opacity: 0; transform: translateY(15px);
         }
-        .cyber-hud.bottom::before {
-            background: linear-gradient(var(--cyan), transparent);
-        }
-
 
         .hud-data-column { display: flex; flex-direction: column; }
-        .data-label { color: var(--text-code); opacity: 0.6; margin-bottom: 3px;}
-        .data-value { color: var(--neon-blue); text-shadow: 0 0 5px rgba(19, 69, 254, 0.6); }
+        #main-content.show .data-label {
+            animation: flipIn 0.8s ease-out forwards; animation-delay: 0.6s; opacity: 0; transform: rotateX(-90deg);
+        }
+        .data-label { color: var(--text-muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 10px;}
+        .data-value { color: var(--text-main); font-size: 13px; position: relative; }
+        
+        .data-value::after {
+            content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            animation: shimmer 3s infinite;
+        }
 
+        .status-ok { color: var(--accent-green) !important; text-shadow: 0 0 5px rgba(46,204,113,0.3); }
+        #main-content.show .status-ok {
+            animation: pulseText 2s infinite, textColorCycle 10s infinite;
+        }
 
-        .cpu-chart { display: flex; align-items: flex-end; gap: 2px; height: 15px; width: 60px; }
-        .chart-bar { width: 4px; height: 5px; background: rgba(0, 255, 255, 0.3); transition: height 0.3s ease; }
-        .chart-bar.high { background: var(--cyan); }
-
+        .cpu-chart { display: flex; align-items: flex-end; gap: 2px; height: 16px; width: 60px; }
+        .chart-bar { width: 4px; height: 4px; background: #bdc3c7; border-radius: 1px 1px 0 0; transition: height 0.2s ease, background 0.2s ease; }
+        .chart-bar { animation: barWiggle 2s infinite alternate; }
+        .chart-bar.high { background: var(--accent-blue); box-shadow: 0 0 4px rgba(52,152,219,0.4); }
 
         #code-wrapper {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: auto;
-            position: relative;
+            flex: 1; overflow-y: auto; overflow-x: auto; background: rgba(255,255,255,0.8);
+            border-radius: 10px; padding: 12px; border: 1px solid rgba(0,0,0,0.06);
             scrollbar-width: none;
+            min-height: 0;
+            -webkit-overflow-scrolling: touch;
         }
         #code-wrapper::-webkit-scrollbar { display: none; }
 
-
-        #code-wrapper::after {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(45deg, rgba(0,0,0,0.06) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.06) 50%, rgba(0,0,0,0.06) 75%, transparent 75%, transparent);
-            background-size: 3px 3px; pointer-events: none; z-index: 5;
+        #main-content.show #code-wrapper {
+            animation: widthExpand 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.3s; transform-origin: center; opacity: 0; transform: scaleX(0.9);
         }
 
-        pre[class*="language-"] {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
+        pre[class*="language-"] { background: transparent !important; margin: 0 !important; padding: 0 !important; }
+        code[class*="language-"] { 
+            font-family: 'Consolas', 'Monaco', monospace; 
+            font-size: 11.5px;
+            line-height: 1.5; color: #24292e !important; 
         }
-
-        code[class*="language-"] {
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            text-shadow: none !important;
+        #main-content.show code[class*="language-"] {
+            animation: codeSlideIn 1s ease-out forwards; animation-delay: 0.8s; opacity: 0; display: block; transform: translateX(10px);
         }
+        
+        .token.comment { color: #6a737d !important; font-style: italic; }
+        .token.keyword { color: #d73a49 !important; font-weight: bold; }
+        .token.string { color: #032f62 !important; }
+        .token.function { color: #6f42c1 !important; }
+        .token.number { color: #005cc5 !important; }
+        .token.operator { color: #d73a49 !important; }
+        .token.builtin { color: #005cc5 !important; }
 
-
-        .token.comment { color: #5c677a; font-style: italic; }
-        .token.keyword { color: var(--neon-pink); text-shadow: 0 0 8px rgba(255,0,204,0.4); }
-        .token.string { color: #f59e0b; }
-        .token.function { color: var(--cyan); text-shadow: 0 0 8px rgba(0,255,255,0.4); }
-        .token.operator { color: #e5e7eb; }
-        .token.number { color: #10b981; }
+        @keyframes bgShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes floatP1 { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(20px) scale(1.05); } }
+        @keyframes rotateP { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes floatP2 { 0% { transform: translate(0, 0); } 100% { transform: translate(-20px, -10px); } }
+        @keyframes floatP3 { 0% { transform: translateY(0); } 100% { transform: translateY(-30px); } }
+        @keyframes scanScroll { 0% { background-position: 0 0; } 100% { background-position: 0 100vh; } }
+        @keyframes scalePop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+        @keyframes textGlowBreathe { 0% { text-shadow: 0 0 5px rgba(52,152,219,0.2); } 100% { text-shadow: 0 0 15px rgba(52,152,219,0.8); } }
+        @keyframes fadeInBlur { 0% { opacity: 0; filter: blur(15px); } 100% { opacity: 1; filter: blur(0); visibility: visible; } }
+        @keyframes shadowPulse { 0% { box-shadow: 0 5px 20px rgba(52,152,219,0.05); } 100% { box-shadow: 0 10px 30px rgba(52,152,219,0.12); } }
+        @keyframes cardFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes slideDownEntry { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUpEntry { to { opacity: 1; transform: translateY(0); } }
+        @keyframes flipIn { to { opacity: 1; transform: rotateX(0deg); } }
+        @keyframes shimmer { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+        @keyframes pulseText { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.98); } }
+        @keyframes textColorCycle { 0%, 100% { color: var(--accent-green); } 50% { color: #27ae60; } }
+        @keyframes barWiggle { 0% { transform: skewX(0deg); } 25% { transform: skewX(-1deg); } 75% { transform: skewX(1deg); } 100% { transform: skewX(0deg); } }
+        @keyframes widthExpand { to { opacity: 1; transform: scaleX(1); } }
+        @keyframes codeSlideIn { to { opacity: 1; transform: translateX(0); } }
 
     </style>
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;">
 
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+    <div class="particle p3"></div>
+
     <div id="cyber-frame">
         <div id="scanlines"></div>
     </div>
 
-    <div id="loader-container"></div>
+    <div id="loader-container">INIT_SYS...</div>
 
     <div id="main-content">
-        <div class="cyber-hud">
+        <div class="cyber-hud top">
             <div class="hud-data-column">
-                <span class="data-label">SYS_MEM</span>
+                <span class="data-label"> </span>
                 <span class="data-value" id="hud-hex">0x0000</span>
             </div>
             <div class="hud-data-column" style="text-align: right;">
-                <span class="data-label">AUTH_STATUS</span>
-                <span class="data-value" style="color: var(--cyan); text-shadow: 0 0 5px rgba(0,255,255,0.6);">OK</span>
+                <span class="data-label"> </span>
+                <span class="data-value status-ok">VERIFIED</span>
             </div>
         </div>
 
@@ -236,7 +246,7 @@ or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     
     <script>
-        const targetText = "NOI 1999 CIL";
+        const targetText = "a067.py | NOI1999";
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*><";
         const loaderContainer = document.getElementById('loader-container');
         const mainContent = document.getElementById('main-content');
@@ -252,9 +262,7 @@ or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
                     return chars[Math.floor(Math.random() * chars.length)];
                 }).join("");
 
-
                 iteration += 1 / 3; 
-
 
                 if (iteration >= targetText.length) {
                     clearInterval(scrambleInterval);
@@ -264,57 +272,49 @@ or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
         }
 
         function finishBootAnimation() {
-
             setTimeout(() => {
-                loaderContainer.style.transition = "opacity 0.6s ease";
+                loaderContainer.style.transition = "opacity 0.5s ease, transform 0.5s ease";
                 loaderContainer.style.opacity = "0";
+                loaderContainer.style.transform = "translate(-50%, -50%) scale(1.3)";
                 
                 setTimeout(() => {
                     loaderContainer.style.display = "none";
                     mainContent.classList.add('show');
                     startMobileHUDUpdates();
-                }, 600);
-            }, 1200);
+                }, 500);
+            }, 800);
         }
 
-
         window.onload = () => {
-            
             setTimeout(() => {
-                document.getElementById('cyber-frame').style.opacity = '1';
-                setTimeout(runScramble, 1000); 
-            }, 200);
+                setTimeout(runScramble, 500); 
+            }, 100);
         };
-
 
         function startMobileHUDUpdates() {
             const hexEl = document.getElementById('hud-hex');
             const netEl = document.getElementById('hud-net');
             const cpuChart = document.getElementById('cpu-chart');
 
-
             setInterval(() => {
                 const hex = Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, '0');
                 hexEl.innerText = `0x${hex}`;
-            }, 150);
-
+            }, 200);
 
             setInterval(() => {
-                const speed = (Math.random() * 60 + 30).toFixed(2);
+                const speed = (Math.random() * 60 + 30).toFixed(1);
                 netEl.innerText = `${speed} TB/s`;
-            }, 400);
-
+            }, 600);
 
             const bars = cpuChart.querySelectorAll('.chart-bar');
             setInterval(() => {
                 bars.forEach(bar => {
                     const height = Math.random() * 10 + 3;
                     bar.style.height = `${height}px`;
-                    if (height > 9) { bar.classList.add('high'); } else { bar.classList.remove('high'); }
+                    if (height > 8) { bar.classList.add('high'); } else { bar.classList.remove('high'); }
                 });
             }, 300);
         }
-
 
         document.onkeydown = function(e) {
             if (e.keyCode == 123) { return false; }
