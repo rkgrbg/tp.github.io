@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p6 是誰吃了蛋糕 | TPCS</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            color: #1a202c;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+        .header p {
+            margin: 0;
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .board {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .house {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-top: 4px solid #94a3b8;
+            border-radius: 4px;
+            padding: 20px;
+            width: 170px;
+            transition: background-color 0.4s ease, border-top-color 0.4s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+        .house h3 {
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #475569;
+        }
+        .select-group {
+            margin-bottom: 12px;
+        }
+        .select-group:last-child {
+            margin-bottom: 0;
+        }
+        .select-group label {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 3px;
+            background: #fff;
+            font-size: 14px;
+            color: #1e293b;
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #64748b;
+        }
+
+        .clues-container {
+            background: #ffffff;
+            padding: 30px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 930px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+        .clues-container h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #1e293b;
+            font-size: 18px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+        .clues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            column-gap: 30px;
+            row-gap: 12px;
+        }
+        .clue {
+            font-size: 14.5px;
+            color: #475569;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+        }
+        .clue::before {
+            content: "[ ]";
+            color: #94a3b8;
+            font-family: monospace;
+            font-size: 14px;
+            margin-right: 8px;
+            font-weight: bold;
+            white-space: pre;
+        }
+        .clue.completed {
+            color: #0f5132;
+        }
+        .clue.completed::before {
+            content: "[V]";
+            color: #198754;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>p6. 是誰吃了蛋糕 </h1>
+        <p>何者錯誤呢？<br>
+           (A) 馬切洛吃了蛋糕   (B) 貓住在紅色房子   (C) 蕭納在喝葡萄酒   (D) 魯道夫鄰居養魚   (E) 柯林鄰居吃起司<br>
+           (F) 魯道夫吃了起司   (G) 兔子的鄰居是魚   (H) 正中間的喝牛奶   (I) 咖啡與茶不相鄰   (J) 狗的鄰居紅房子</p>
+    </div>
+
+    <div class="board" id="board">
+        </div>
+
+    <div class="clues-container">
+        <h3>那些條件</h3>
+        <div class="clues-grid" id="clues-list">
+            </div>
+    </div>
+
+    <script>
+        const options = {
+            color: ["未知", "黃色", "藍色", "紅色", "綠色", "白色"],
+            character: ["未知", "咪咪", "馬切洛", "魯道夫", "柯林", "蕭納"],
+            pet: ["未知", "鳥", "狗", "貓", "魚", "兔子"],
+            drink: ["未知", "水", "茶", "牛奶", "咖啡", "葡萄酒"],
+            food: ["未知", "麵包", "蘋果", "起司", "蛋糕", "義大利麵"]
+        };
+
+        const categoryNames = {
+            color: '房屋顏色', character: '居住角色', pet: '飼養寵物', drink: '飲用飲料', food: '常吃食物'
+        };
+
+        const colorMap = {
+            "黃色": { bg: "#fef9c3", border: "#eab308" }, 
+            "藍色": { bg: "#e0f2fe", border: "#0ea5e9" }, 
+            "紅色": { bg: "#fee2e2", border: "#ef4444" }, 
+            "綠色": { bg: "#dcfce7", border: "#22c55e" }, 
+            "白色": { bg: "#ffffff", border: "#94a3b8" },
+            "未知": { bg: "#ffffff", border: "#94a3b8" }
+        };
+
+        const clues = [
+            "1. 魯道夫住在紅色的房子裡。",
+            "2. 蕭納吃義大利麵。",
+            "3. 馬切洛喝茶。",
+            "4. 綠色房子緊鄰在白色房子的正左方。",
+            "5. 綠色房子的主人喝咖啡。",
+            "6. 養貓的人吃起司。",
+            "7. 黃色房子的主人養鳥。",
+            "8. 住在正中間房子的人喝牛奶。",
+            "9. 咪咪住在第 1 間房子裡。",
+            "10. 吃麵包的人住在養狗的人隔壁。",
+            "11. 吃蘋果的人住在養鳥的人隔壁。",
+            "12. 養兔子的人喝葡萄酒。",
+            "13. 咪咪住在藍色房子的隔壁。",
+            "14. 養魚的人喝咖啡。",
+            "15. 蕭納住在養魚的人隔壁。"
+        ];
+
+        const board = document.getElementById('board');
+        for (let i = 1; i <= 5; i++) {
+            const houseDiv = document.createElement('div');
+            houseDiv.className = 'house';
+            houseDiv.id = `house-${i}`;
+            
+            let html = `<h3>第 ${i} 間</h3>`;
+            Object.keys(options).forEach(category => {
+                html += `
+                <div class="select-group">
+                    <label>${categoryNames[category]}</label>
+                    <select data-house="${i}" data-category="${category}">`;
+                options[category].forEach(opt => {
+                    html += `<option value="${opt}">${opt}</option>`;
+                });
+                html += `</select></div>`;
+            });
+            houseDiv.innerHTML = html;
+            board.appendChild(houseDiv);
+        }
+
+        const cluesList = document.getElementById('clues-list');
+        clues.forEach((text, index) => {
+            const clueDiv = document.createElement('div');
+            clueDiv.className = 'clue';
+            clueDiv.id = `clue-${index + 1}`;
+            clueDiv.innerText = text;
+            cluesList.appendChild(clueDiv);
+        });
+
+        function getGrid() {
+            let grid = [];
+            for (let i = 1; i <= 5; i++) {
+                let houseData = {};
+                const selects = document.querySelectorAll(`select[data-house="${i}"]`);
+                selects.forEach(sel => {
+                    houseData[sel.dataset.category] = sel.value;
+                });
+                grid.push(houseData);
+            }
+            return grid;
+        }
+
+        function isSame(grid, key1, val1, key2, val2) {
+            return grid.some(h => h[key1] === val1 && h[key2] === val2);
+        }
+
+        function isNeighbor(grid, key1, val1, key2, val2) {
+            let idx1 = grid.findIndex(h => h[key1] === val1);
+            let idx2 = grid.findIndex(h => h[key2] === val2);
+            if (idx1 === -1 || idx2 === -1) return false;
+            return Math.abs(idx1 - idx2) === 1;
+        }
+
+        function checkLogic() {
+            const grid = getGrid();
+            let completedCount = 0;
+
+            const rules = [
+                isSame(grid, 'character', '魯道夫', 'color', '紅色'),
+                isSame(grid, 'character', '蕭納', 'food', '義大利麵'),
+                isSame(grid, 'character', '馬切洛', 'drink', '茶'),
+                (() => {
+                    let greenIdx = grid.findIndex(h => h.color === '綠色');
+                    let whiteIdx = grid.findIndex(h => h.color === '白色');
+                    return greenIdx !== -1 && whiteIdx !== -1 && (whiteIdx - greenIdx === 1);
+                })(),
+                isSame(grid, 'color', '綠色', 'drink', '咖啡'),
+                isSame(grid, 'pet', '貓', 'food', '起司'),
+                isSame(grid, 'color', '黃色', 'pet', '鳥'),
+                grid[2].drink === '牛奶',
+                grid[0].character === '咪咪',
+                isNeighbor(grid, 'food', '麵包', 'pet', '狗'),
+                isNeighbor(grid, 'food', '蘋果', 'pet', '鳥'),
+                isSame(grid, 'pet', '兔子', 'drink', '葡萄酒'),
+                isNeighbor(grid, 'character', '咪咪', 'color', '藍色'),
+                isSame(grid, 'pet', '魚', 'drink', '咖啡'),
+                isNeighbor(grid, 'character', '蕭納', 'pet', '魚')
+            ];
+
+            rules.forEach((isMet, index) => {
+                const clueEl = document.getElementById(`clue-${index + 1}`);
+                if (isMet) {
+                    if (!clueEl.classList.contains('completed')) {
+                        clueEl.classList.add('completed');
+                    }
+                    completedCount++;
+                } else {
+                    clueEl.classList.remove('completed');
+                }
+            });
+        }
+
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', (e) => {
+                if (e.target.dataset.category === 'color') {
+                    const houseId = `house-${e.target.dataset.house}`;
+                    const colorVal = e.target.value;
+                    const houseEl = document.getElementById(houseId);
+                    houseEl.style.backgroundColor = colorMap[colorVal].bg;
+                    houseEl.style.borderTopColor = colorMap[colorVal].border;
+                }
+                checkLogic();
+            });
+        });
+    </script>
+</body>
+</html>

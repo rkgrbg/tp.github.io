@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p1 蛋糕問題 | TPCS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        #loader-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 20px;
+            font-weight: bold;
+            color: #475569;
+            letter-spacing: 2px;
+            z-index: 50;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        #main-content {
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 850px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(15px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        #main-content.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .snippet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: #f9fafb;
+            border-bottom: 1px solid #d1d5db;
+        }
+        .snippet-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        .snippet-meta {
+            font-size: 13px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .snippet-body {
+            background-color: #fafafa;
+            padding: 0;
+            margin: 0;
+            max-height: 80vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        
+        pre[class*="language-"] {
+            margin: 0 !important;
+            padding: 20px !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+        code[class*="language-"] {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            pointer-events: none; 
+        }
+
+    </style>
+</head>
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" ondragstart="return false;" ondrop="return false;">
+
+    <div id="loader-container">INITIALIZING...</div>
+
+    <div id="main-content">
+        <div class="snippet-header">
+            <h1 class="snippet-title">a067.py</h1>
+            <span class="snippet-meta">NOI1999</span>
+        </div>
+        
+        <div class="snippet-body">
+<pre><code class="language-python">from itertools import accumulate as lIlIl
+from math import isqrt as IlIIl
+import sys as lIIlI
+lIIl1=lambda *x:range(*x)
+IIlIl=lambda x:reversed(tuple(x))
+lII1l=lambda x:tuple(x)
+IIllI=lambda *x:map(*x)
+llIIl=lambda:getattr(__import__("builtins"),"print")
+l1IlI=lambda:lIIlI.stdin.readline()
+llIIl()((lambda lIlI,IlIl:(lambda llIl,IIlI:(lambda l1Il=[10**18]:(lambda lllI:
+(lllI(lllI,IlIl,lIlI,0,IlIIl(lIlI)+1,lIlI+1),l1Il[0]*(l1Il[0]&lt;10**18))[1])(
+lambda lllI,lI1I,Il1I,l1lI,I1II,IlI1I:
+((lI1I&lt;1)and(Il1I&lt;1)and l1Il.__setitem__(0,l1lI+(l1Il[0]-l1lI)*(l1Il[0]&lt;l1lI)))or(
+(lI1I&gt;0)and(Il1I&gt;=llIl[lI1I])and(l1lI&lt;l1Il[0]-IIlI[lI1I])and((Il1I&lt;&lt;1)&lt;(l1Il[0]-l1lI)*I1II)
+and[0 for lIl1_ in IIlIl(lIIl1(lI1I,min(I1II-1,IlIIl(Il1I-llIl[lI1I-1]))+1))
+for IlI1_ in IIlIl(lIIl1(lI1I,min(IlI1I-1,(Il1I-llIl[lI1I-1])//(lIl1_*lIl1_))+1))
+if(lambda ll1I:(ll1I&lt;l1Il[0])and(lllI(lllI,lI1I-1,Il1I-lIl1_*lIl1_*IlI1_,ll1I,lIl1_,IlI1_)
+or True))(l1lI+((lIl1_*IlI1_)&lt;&lt;1)+((lI1I==IlIl)*lIl1_*lIl1_))])))())(
+[0,*lIlIl(IIllI(lambda l:l*l*l,lIIl1(1,IlIl+1)))],[0,*lIlIl(IIllI(lambda I:(I*I)&lt;&lt;1,lIIl1(1,IlIl+1)))]
+))(*lII1l(IIllI(int,IIllI(lambda _:l1IlI(),iter('..'))))))</code></pre>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    
+    <script>
+        const targetText = "NOI1999 Birthday Cake";
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*><";
+        const loaderContainer = document.getElementById('loader-container');
+        const mainContent = document.getElementById('main-content');
+        let scrambleInterval;
+        let iteration = 0;
+
+        function runScramble() {
+            scrambleInterval = setInterval(() => {
+                loaderContainer.innerText = targetText.split("").map((char, index) => {
+                    if (index < iteration) return targetText[index];
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join("");
+                iteration += 1 / 2;
+                if (iteration >= targetText.length) {
+                    clearInterval(scrambleInterval);
+                    setTimeout(finishBootAnimation, 400);
+                }
+            }, 30);
+        }
+
+        function finishBootAnimation() {
+            loaderContainer.style.opacity = "0";
+            loaderContainer.style.transform = "translate(-50%, -50%) scale(1.1)";
+            
+            setTimeout(() => {
+                loaderContainer.style.display = "none";
+                mainContent.classList.add('show');
+                document.body.style.overflow = 'auto';
+            }, 500);
+        }
+
+        window.onload = () => {
+            setTimeout(runScramble, 300); 
+        };
+
+        document.onkeydown = function(e) {
+            if (e.keyCode === 123) { return false; }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { return false; }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { return false; }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { return false; }
+            if (e.ctrlKey && e.keyCode === 85) { return false; }
+            if (e.ctrlKey && e.keyCode === 83) { return false; }
+            if (e.ctrlKey && e.keyCode === 80) { return false; }
+        };
+        
+        window.addEventListener('contextmenu', function (e) { 
+            e.preventDefault(); 
+        }, false);
+    </script>
+</body>
+</html>
