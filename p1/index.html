@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>P1 Souvenirs | IOI 2025</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
     <style>
         * {
             box-sizing: border-box;
@@ -118,8 +116,8 @@
             border-top: 1px solid #d1d5db;
         }
 
-        .pdf-preview-container {
-            background-color: #94a3b8; 
+        /* 預覽圖片容器通用樣式 */
+        .preview-container {
             padding: 30px 20px;
             display: flex;
             flex-direction: column;
@@ -127,61 +125,21 @@
             gap: 25px;
         }
 
-        .pdf-preview-container img {
+        .pdf-bg {
+            background-color: #94a3b8; 
+        }
+
+        .code-bg {
+            background-color: #fdfdfd;
+        }
+
+        .preview-container img {
             max-width: 100%;
             height: auto;
             border-radius: 4px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
             pointer-events: none; 
             display: block;
-        }
-
-        .code-section {
-            padding: 0;
-            margin: 0;
-            background: #fdfdfd;
-            position: relative;
-        }
-        
-        /* 嚴格對齊行號與程式碼的 CSS */
-        pre[class*="language-"] {
-            position: relative !important;
-            margin: 0 !important;
-            padding: 24px 24px 24px 3.5em !important; /* 確保上下留白對稱，左側留出行號空間 */
-            background: transparent !important;
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-        }
-        
-        code[class*="language-"] {
-            display: block !important;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
-            font-size: 14px !important;
-            line-height: 1.6 !important;
-            white-space: pre !important;
-            pointer-events: none; 
-        }
-
-        .line-numbers .line-numbers-rows {
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 3.5em !important;
-            padding: 24px 0 !important; /* 必須與 pre 的上下 padding 相同 */
-            border-right: 1px solid #d1d5db !important;
-            background: #fdfdfd !important;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
-            font-size: 14px !important;
-        }
-
-        .line-numbers-rows > span {
-            display: block !important;
-            line-height: 1.6 !important; /* 必須與 code 的 line-height 相同 */
-        }
-        
-        .line-numbers-rows > span:before {
-            color: #9ca3af !important;
         }
 
         /* 滾動條美化 */
@@ -214,7 +172,7 @@
         <div class="content-body">
             
             <div class="section-divider first">PROBLEM DESCRIPTION PREVIEW</div>
-            <div class="pdf-preview-container">
+            <div class="preview-container pdf-bg">
                 <img src="pdf_page_1.jpg" alt="Problem Statement Page 1">
                 <img src="pdf_page_2.jpg" alt="Problem Statement Page 2">
                 <img src="pdf_page_3.jpg" alt="Problem Statement Page 3">
@@ -222,35 +180,12 @@
             </div>
 
             <div class="section-divider middle">SOURCE CODE</div>
-            <div class="code-section">
-<pre class="line-numbers"><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
-#include "souvenirs.h"
-using namespace std; using ll = long long;
-vector&lt;int&gt; counters, vector&lt;ll&gt; lead_cost, vector&lt;vector&lt;int&gt;&gt; lead_bought;
-int buy_next_lead(int i){
-    ll S = lead_bought[i].size(), P = lead_cost[i]/S; if (S == 1) P = P - 1; auto pt = transaction(P);
-    for (int j : pt.first) counters[j]++;
-    int l = pt.first[0]; lead_cost[l] = P-pt.second, lead_bought[l] = pt.first; return l;
-}
-void buy_souvenirs(int N, ll P_0) {
-    N--; counters = vector&lt;int&gt;(N+1, 0), lead_cost = vector&lt;ll&gt;(N+1, -1), lead_bought = vector&lt;vector&lt;int&gt;&gt;(N+1);
-    lead_cost[0] = P_0, lead_bought[0] = {0}; int lead_index = 0, prices_index = N;
-    while (lead_index &lt; N) lead_index = buy_next_lead(lead_index);
-    while (prices_index &gt; 0) if (lead_cost[lead_index] != -1){
-        while ((int)lead_bought[lead_index].size() &gt; 1 && lead_cost[lead_bought[lead_index].back()] != -1)
-            lead_cost[lead_index] -= lead_cost[lead_bought[lead_index].back()], lead_bought[lead_index].pop_back();
-        if (lead_index == prices_index) prices_index--, lead_index--; else lead_index = buy_next_lead(lead_index);
-    }else lead_index--; for (int i=0; i &lt;= N; ++i) for (int j=counters[i]; j &lt; i; ++j) transaction(lead_cost[i]);
-}</code></pre>
+            <div class="preview-container code-bg">
+                <img src="souvenirs_code_quiz_plain.png" alt="Source Code Snapshot">
             </div>
 
         </div>
     </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
     
     <script>
         const targetText = "IOI 2025 Souvenirs";
