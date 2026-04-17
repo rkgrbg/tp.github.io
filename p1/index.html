@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P1 Souvenirs | IOI 2025</title>
+    <title>P1.Souvenirs | IOI 2025</title>
     <style>
         * {
             box-sizing: border-box;
@@ -116,7 +116,6 @@
             border-top: 1px solid #d1d5db;
         }
 
-        /* 預覽圖片容器通用樣式 */
         .preview-container {
             padding: 30px 20px;
             display: flex;
@@ -142,7 +141,6 @@
             display: block;
         }
 
-        /* 滾動條美化 */
         .content-body::-webkit-scrollbar {
             width: 8px;
         }
@@ -188,7 +186,7 @@
     </div>
     
     <script>
-        const targetText = "IOI 2025 Souvenirs";
+        const targetText = "P1 Souvenirs";
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*><";
         const loaderContainer = document.getElementById('loader-container');
         const mainContent = document.getElementById('main-content');
@@ -223,7 +221,6 @@
             setTimeout(runScramble, 300); 
         };
 
-        // 鍵盤防護
         document.onkeydown = function(e) {
             if (e.keyCode === 123) { return false; } 
             if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { return false; } 
